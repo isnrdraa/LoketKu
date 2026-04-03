@@ -13,7 +13,12 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'LoketKu'),
+
+    // Store / Receipt info
+    'store_address' => env('STORE_ADDRESS', ''),
+    'store_phone'   => env('STORE_PHONE', ''),
+    'store_footer'  => env('STORE_FOOTER', 'Terima kasih telah berkunjung!'),
 
     /*
     |--------------------------------------------------------------------------

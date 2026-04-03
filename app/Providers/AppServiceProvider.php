@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Setting;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,25 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->applyTimezoneFromSettings();
+    }
+
+    /**
+     * Terapkan timezone dari tabel settings ke runtime PHP & Carbon.
+     * Fallback ke APP_TIMEZONE env atau Asia/Jakarta (WIB) jika belum diset.
+     */
+    protected function applyTimezoneFromSettings(): void
+    {
+        try {
+            $timezone = Setting::get('timezone', env('APP_TIMEZONE', 'Asia/Jakarta'));
+            if ($timezone && in_array($timezone, timezone_identifiers_list())) {
+                config(['app.timezone' => $timezone]);
+                date_default_timezone_set($timezone);
+            }
+        } catch (\Exception) {
+            // Tabel settings belum ada (misal: sebelum migrate pertama kali)
+            date_default_timezone_set(env('APP_TIMEZONE', 'Asia/Jakarta'));
+        }
     }
 
     /**
