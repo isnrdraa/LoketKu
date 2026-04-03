@@ -22,7 +22,7 @@ type Service = { id: number; name: string; price: number };
 type Category = { id: number; name: string; services: Service[] };
 type CartItem = { service_id: number; service_name: string; qty: number; unit_price: number };
 
-const props = defineProps<{ categories: Category[] }>();
+defineProps<{ categories: Category[] }>();
 
 // State keranjang
 const cart = ref<CartItem[]>([]);
@@ -42,6 +42,7 @@ function qtyOf(serviceId: number): number {
 
 function addToCart(service: Service) {
     const existing = cartItem(service.id);
+
     if (existing) {
         existing.qty++;
     } else {
@@ -56,7 +57,11 @@ function addToCart(service: Service) {
 
 function decreaseQty(service: Service) {
     const existing = cartItem(service.id);
-    if (!existing) return;
+
+    if (!existing) {
+return;
+}
+
     if (existing.qty <= 1) {
         cart.value = cart.value.filter((c) => c.service_id !== service.id);
     } else {
@@ -70,7 +75,11 @@ function removeFromCart(serviceId: number) {
 
 function setQty(serviceId: number, value: number) {
     const existing = cartItem(serviceId);
-    if (!existing) return;
+
+    if (!existing) {
+return;
+}
+
     if (value < 1) {
         cart.value = cart.value.filter((c) => c.service_id !== serviceId);
     } else {
@@ -100,8 +109,10 @@ function clearCart() {
 function submitTransaction() {
     if (cart.value.length === 0) {
         errors.value = { items: 'Pilih minimal satu layanan.' };
+
         return;
     }
+
     processing.value = true;
     errors.value = {};
 

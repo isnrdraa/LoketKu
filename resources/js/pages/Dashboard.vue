@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
-import { BarChart3, Receipt, ShoppingBag, TrendingDown, TrendingUp, Wallet } from 'lucide-vue-next';
+import { BarChart3, Receipt, ShoppingBag, TrendingDown, TrendingUp } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { dashboard } from '@/routes';
@@ -50,17 +50,20 @@ function formatRupiah(value: number): string {
 }
 
 function formatK(value: number): string {
-    if (value >= 1_000_000) return (value / 1_000_000).toFixed(1) + 'jt';
-    if (value >= 1_000) return (value / 1_000).toFixed(0) + 'rb';
+    if (value >= 1_000_000) {
+return (value / 1_000_000).toFixed(1) + 'jt';
+}
+
+    if (value >= 1_000) {
+return (value / 1_000).toFixed(0) + 'rb';
+}
+
     return String(value);
 }
 
 // Untuk bar chart sederhana — hitung % tinggi bar relatif terhadap nilai max
 const maxRevenue = computed(() =>
     Math.max(...last7Days.value.map((d) => d.revenue), 1)
-);
-const maxExpenses = computed(() =>
-    Math.max(...last7Days.value.map((d) => d.expenses), 1)
 );
 const maxTopRevenue = computed(() =>
     Math.max(...topServicesToday.value.map((s) => s.revenue), 1)

@@ -214,13 +214,15 @@ function formatRupiah(value: number): string {
                         :href="link.url"
                         class="inline-flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-sm transition-colors"
                         :class="link.active ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted'"
-                        v-html="link.label"
-                    />
+                    >
+                        <span v-html="link.label" />
+                    </Link>
                     <span
                         v-else
                         class="inline-flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-sm text-muted-foreground opacity-50"
-                        v-html="link.label"
-                    />
+                    >
+                        <span v-html="link.label" />
+                    </span>
                 </template>
             </div>
         </div>

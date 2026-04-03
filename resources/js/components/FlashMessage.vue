@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { CheckCircle, XCircle } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 const page = usePage<{ flash: { success?: string; error?: string } }>();
 
@@ -11,7 +11,10 @@ const type = ref<'success' | 'error'>('success');
 let timer: ReturnType<typeof setTimeout> | null = null;
 
 function show(msg: string, msgType: 'success' | 'error') {
-    if (timer) clearTimeout(timer);
+    if (timer) {
+        clearTimeout(timer);
+    }
+
     message.value = msg;
     type.value = msgType;
     visible.value = true;
@@ -23,8 +26,11 @@ function show(msg: string, msgType: 'success' | 'error') {
 watch(
     () => page.props.flash,
     (flash) => {
-        if (flash?.success) show(flash.success, 'success');
-        else if (flash?.error) show(flash.error, 'error');
+        if (flash?.success) {
+            show(flash.success, 'success');
+        } else if (flash?.error) {
+            show(flash.error, 'error');
+        }
     },
     { immediate: true },
 );
