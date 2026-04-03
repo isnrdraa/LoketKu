@@ -35,9 +35,10 @@ const config: CapacitorConfig = {
         url: 'https://laravel.isnrdra.dev',
 
         /**
-         * androidScheme: 'https' karena sudah pakai domain HTTPS.
+         * androidScheme: 'http' agar navigasi tetap di dalam WebView.
+         * Koneksi ke server tetap via HTTPS, ini hanya skema internal WebView.
          */
-        androidScheme: 'https',
+        androidScheme: 'http',
     },
 
     android: {
