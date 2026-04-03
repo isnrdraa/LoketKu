@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Konfigurasi keamanan jaringan Android untuk LoketKu.
+
+    Mengizinkan HTTP (cleartext) ke:
+    - 10.0.2.2  → Android emulator loopback ke localhost host
+    - 10.0.3.2  → Genymotion emulator loopback
+    - 192.168.x.x → Jaringan WiFi lokal (untuk testing perangkat fisik)
+
+    Untuk production:
+    - Ganti server.url di capacitor.config.ts ke HTTPS
+    - Hapus atau batasi domain di sini
+-->
+<network-security-config>
+    <!-- Izinkan cleartext untuk server lokal development -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Android Emulator → host machine localhost -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!-- Genymotion Emulator -->
+        <domain includeSubdomains="false">10.0.3.2</domain>
+        <!-- Range LAN lokal (WiFi) — sesuaikan dengan jaringan kamu -->
+        <domain includeSubdomains="false">192.168.1.1</domain>
+        <domain includeSubdomains="false">192.168.0.1</domain>
+        <!-- localhost untuk testing -->
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>
