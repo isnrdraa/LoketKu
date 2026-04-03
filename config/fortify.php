@@ -45,9 +45,9 @@ return [
     |
     */
 
-    'username' => 'email',
+    'username' => 'username',
 
-    'email' => 'email',
+    'email' => 'username',
 
     /*
     |--------------------------------------------------------------------------
@@ -144,14 +144,17 @@ return [
     */
 
     'features' => [
-        Features::registration(),
-        Features::resetPasswords(),
-        Features::emailVerification(),
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
-            // 'window' => 0
-        ]),
+        // Registration dinonaktifkan – admin membuat user lewat panel
+        // Features::registration(),
+        // Reset password dinonaktifkan – tidak pakai email
+        // Features::resetPasswords(),
+        // Email verification dinonaktifkan – tidak pakai email
+        // Features::emailVerification(),
+        // Two-factor dinonaktifkan untuk menyederhanakan operasional kasir
+        // Features::twoFactorAuthentication([
+        //     'confirm' => true,
+        //     'confirmPassword' => true,
+        // ]),
     ],
 
 ];
