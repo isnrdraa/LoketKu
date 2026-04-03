@@ -6,7 +6,7 @@
  * Di browser, tombol "Cetak Struk" langsung memanggil window.print().
  */
 import { Bluetooth, RefreshCw, X } from 'lucide-vue-next';
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import type { BluetoothDevice } from '@/composables/useThermalPrint';
 
 const props = defineProps<{
@@ -27,12 +27,21 @@ const emit = defineEmits<{
 const paperWidth = ref<32 | 42>(32);
 const picked = ref<BluetoothDevice | null>(props.selectedDevice ?? null);
 
-onMounted(() => {
-    if (props.devices.length === 0) emit('refresh');
+watch(() => props.selectedDevice, (device) => {
+    picked.value = device ?? null;
+}, { immediate: true });
+
+watch(() => props.open, (open) => {
+    if (open && props.devices.length === 0 && !props.loading) {
+        emit('refresh');
+    }
 });
 
 function confirm() {
-    if (!picked.value) return;
+    if (!picked.value) {
+return;
+}
+
     emit('print', picked.value, paperWidth.value);
 }
 </script>
@@ -63,11 +72,11 @@ function confirm() {
                     <!-- Body -->
                     <div class="p-4 flex flex-col gap-4">
 
-                        <!-- Daftar perangkat yang di-pair -->
+                        <!-- Daftar perangkat Bluetooth yang terdeteksi -->
                         <div>
                             <div class="flex items-center justify-between mb-2">
                                 <p class="text-xs font-medium text-muted-foreground">
-                                    Perangkat yang sudah di-pair:
+                                    Perangkat Bluetooth yang terdeteksi:
                                 </p>
                                 <button
                                     class="inline-flex items-center gap-1 text-xs text-primary hover:underline"
@@ -89,8 +98,8 @@ function confirm() {
                                 v-else-if="devices.length === 0"
                                 class="rounded-lg border border-dashed border-border p-4 text-center text-sm text-muted-foreground"
                             >
-                                Tidak ada perangkat Bluetooth yang di-pair.<br/>
-                                <span class="text-xs">Pair printer di Pengaturan Bluetooth Android terlebih dahulu.</span>
+                                Tidak ada perangkat Bluetooth yang terdeteksi.<br/>
+                                <span class="text-xs">Pastikan printer aktif, dekat, dan sudah siap dipindai.</span>
                             </div>
 
                             <!-- List perangkat -->

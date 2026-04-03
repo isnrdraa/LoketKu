@@ -21,6 +21,7 @@ export type BluetoothDevice = {
     id: string;      // MAC address
     name: string;
     class?: number;
+    address?: string;
 };
 
 export type ReceiptData = {
@@ -74,10 +75,6 @@ function padEnd(str: string, width: number): string {
     return str.substring(0, width).padEnd(width, ' ');
 }
 
-function padStart(str: string, width: number): string {
-    return str.substring(0, width).padStart(width, ' ');
-}
-
 /**
  * Buat baris dua kolom: kiri + kanan (total width karakter).
  * Default width 32 karakter (58mm ~32 char, 80mm ~42 char).
@@ -85,6 +82,7 @@ function padStart(str: string, width: number): string {
 function twoCol(left: string, right: string, width = 32): string {
     const rightLen = right.length;
     const leftMax  = width - rightLen - 1;
+
     return padEnd(left, leftMax) + ' ' + right + '\n';
 }
 
@@ -125,9 +123,11 @@ export function buildEscPos(receipt: ReceiptData, width = 32): string {
     if (receipt.storeAddress) {
         doc += receipt.storeAddress + '\n';
     }
+
     if (receipt.storePhone) {
         doc += receipt.storePhone + '\n';
     }
+
     if (receipt.storeFooter) {
         doc += receipt.storeFooter + '\n';
     }
@@ -193,19 +193,46 @@ export function useThermalPrint() {
     const printing      = ref(false);
     const error         = ref<string | null>(null);
 
+    type BluetoothSerialCompat = typeof BluetoothSerial & {
+        list?: () => Promise<{ devices?: BluetoothDevice[] }>;
+    };
+
+    function normalizeDevices(foundDevices: BluetoothDevice[]): BluetoothDevice[] {
+        return foundDevices.map((device) => ({
+            ...device,
+            id: device.id || device.address || '',
+        })).filter((device) => device.id);
+    }
+
     /**
-     * Muat daftar perangkat Bluetooth yang sudah di-pair.
+     * Muat daftar perangkat Bluetooth yang tersedia.
      * Hanya tersedia di mode native (Android).
      */
     async function loadPairedDevices(): Promise<BluetoothDevice[]> {
-        if (!isNative) return [];
+        if (!isNative) {
+            return [];
+        }
 
         try {
-            const result = await BluetoothSerial.list();
-            devices.value = (result.devices ?? []) as BluetoothDevice[];
+            error.value = null;
+
+            const bluetoothSerial = BluetoothSerial as BluetoothSerialCompat;
+            const result = typeof bluetoothSerial.scan === 'function'
+                ? await bluetoothSerial.scan()
+                : typeof bluetoothSerial.list === 'function'
+                    ? await bluetoothSerial.list()
+                    : null;
+
+            if (!result) {
+                throw new Error('Plugin Bluetooth tidak mendukung daftar perangkat di Android.');
+            }
+
+            devices.value = normalizeDevices((result.devices ?? []) as BluetoothDevice[]);
+
             return devices.value;
         } catch (e: unknown) {
             error.value = 'Gagal memuat daftar perangkat: ' + String(e);
+
             return [];
         }
     }
@@ -227,24 +254,25 @@ export function useThermalPrint() {
     ): Promise<void> {
         error.value  = null;
         printing.value = true;
+        const targetId = deviceId ?? selectedDevice.value?.id;
 
         try {
             if (!isNative) {
                 // ── Web / desktop: pakai CSS print ──────────────────────────
                 window.print();
+
                 return;
             }
 
             // ── Android: kirim via Bluetooth SPP ────────────────────────────
-            const targetId = deviceId ?? selectedDevice.value?.id;
-
             if (!targetId) {
                 throw new Error('Pilih printer Bluetooth terlebih dahulu.');
             }
 
             // Pastikan Bluetooth aktif
-            const { isEnabled } = await BluetoothSerial.isEnabled();
-            if (!isEnabled) {
+            const { enabled } = await BluetoothSerial.isEnabled();
+
+            if (!enabled) {
                 await BluetoothSerial.enable();
             }
 
@@ -253,15 +281,22 @@ export function useThermalPrint() {
 
             // Bangun dokumen ESC/POS dan kirim
             const escposData = buildEscPos(receipt, paperWidth);
-            await BluetoothSerial.write({ value: escposData });
+            await BluetoothSerial.write({ address: targetId, value: escposData });
 
             // Disconnect setelah print
-            await BluetoothSerial.disconnect();
+            await BluetoothSerial.disconnect({ address: targetId });
 
         } catch (e: unknown) {
             error.value = String(e);
+
             // Pastikan disconnect meski error
-            try { await BluetoothSerial.disconnect(); } catch { /* ignore */ }
+            if (targetId) {
+                try {
+                    await BluetoothSerial.disconnect({ address: targetId });
+                } catch {
+                    /* ignore */
+                }
+            }
         } finally {
             printing.value = false;
         }

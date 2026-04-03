@@ -65,11 +65,19 @@ const {
 const showBtModal  = ref(false);
 const btLoading    = ref(false);
 
+async function reloadBtDevices() {
+    btLoading.value = true;
+
+    try {
+        await loadPairedDevices();
+    } finally {
+        btLoading.value = false;
+    }
+}
+
 async function openBtModal() {
     showBtModal.value = true;
-    btLoading.value = true;
-    await loadPairedDevices();
-    btLoading.value = false;
+    await reloadBtDevices();
 }
 
 async function handleBtPrint(device: BluetoothDevice, paperWidth: 32 | 42) {
@@ -115,8 +123,10 @@ const autoPrint = ref(false);
 
 onMounted(() => {
     const params = new URLSearchParams(window.location.search);
+
     if (params.get('print') === '1') {
         autoPrint.value = true;
+
         if (isNative) {
             // Di Android: buka modal pilih printer
             setTimeout(() => openBtModal(), 600);
@@ -188,7 +198,7 @@ function formatRupiah(value: number): string {
         :loading="btLoading"
         :error="printError"
         @close="showBtModal = false"
-        @refresh="async () => { btLoading = true; await loadPairedDevices(); btLoading = false; }"
+        @refresh="reloadBtDevices"
         @print="handleBtPrint"
     />
 
