@@ -32,19 +32,12 @@ const config: CapacitorConfig = {
          *   Perangkat fisik  → http://192.168.1.X:8000
          *   Production       → https://loketku.yourdomain.com
          */
-        url: 'http://10.0.2.2:8000',
+        url: 'https://laravel.isnrdra.dev',
 
         /**
-         * Izinkan HTTP (non-HTTPS) untuk development lokal.
-         * HAPUS atau set ke false saat production.
+         * androidScheme: 'https' karena sudah pakai domain HTTPS.
          */
-        cleartext: true,
-
-        /**
-         * androidScheme: 'http' agar cookie session Laravel
-         * diterima dengan benar oleh WebView Android.
-         */
-        androidScheme: 'http',
+        androidScheme: 'https',
     },
 
     android: {
