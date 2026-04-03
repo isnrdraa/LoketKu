@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { PencilLine, Plus, Trash2 } from 'lucide-vue-next';
-import { route } from '@/routes';
-import { dashboard } from '@/routes';
 
 defineOptions({
     layout: {
