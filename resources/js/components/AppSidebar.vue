@@ -1,6 +1,17 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import {
+    BarChart3,
+    LayoutGrid,
+    Receipt,
+    Settings,
+    ShoppingBag,
+    Store,
+    Tag,
+    Users,
+    Wallet,
+} from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,28 +26,66 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import type { NavItem } from '@/types';
+import type { Auth, NavItem } from '@/types';
 
+const page = usePage<{ auth: Auth }>();
+const user = computed(() => page.props.auth.user);
+const isAdmin = computed(() => user.value?.role === 'admin');
+
+// ─── Menu utama (semua role) ─────────────────────────────────────────────
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Transaksi Baru',
+        href: '/transactions/create',
+        icon: ShoppingBag,
+    },
+    {
+        title: 'Riwayat Transaksi',
+        href: '/transactions',
+        icon: Receipt,
+    },
 ];
 
-const footerNavItems: NavItem[] = [
+// ─── Menu admin ──────────────────────────────────────────────────────────
+const adminNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: FolderGit2,
+        title: 'Laporan',
+        href: '/reports',
+        icon: BarChart3,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
+        title: 'Pengeluaran',
+        href: '/expenses',
+        icon: Wallet,
+    },
+    {
+        title: 'Kategori Layanan',
+        href: '/service-categories',
+        icon: Tag,
+    },
+    {
+        title: 'Layanan',
+        href: '/services',
+        icon: Settings,
+    },
+    {
+        title: 'Pengguna',
+        href: '/users',
+        icon: Users,
+    },
+    {
+        title: 'Pengaturan Toko',
+        href: '/store-settings',
+        icon: Store,
     },
 ];
+
+const footerNavItems: NavItem[] = [];
 </script>
 
 <template>
@@ -54,7 +103,8 @@ const footerNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain :items="mainNavItems" label="Menu" />
+            <NavMain v-if="isAdmin" :items="adminNavItems" label="Admin" />
         </SidebarContent>
 
         <SidebarFooter>
